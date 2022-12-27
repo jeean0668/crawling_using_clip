@@ -1,0 +1,30 @@
+1. docker pull pytorch/pytorch-1.2 ~~ (자기 컴퓨터 cuda 설정에 맞게)
+    (cuda version 확인은 nvidia-smi 로 할 수 있음)
+
+2. docker-compose -f docker-compose.yml up -d 로 docker-compose.yml 내용
+을 순차적으로 처리(-d 는 background 실행을 의미)
+
+3. docker exec -it kafka /bin/sh : running 되고 있는 zookeeper와 kafka 로 
+topic 선언 가능.
+
+4. 여러 이미지를 merge해서 하나의 파일로 만드는 방법은?? 
+일단 kafka는 제외하고, pytorch로만 container를 생성해서 crawling code
+test할 생각
+
+5. docker create -it --name=sample_pytorch -p 2000:80 --gpus all crawler_sample
+crawler_sample 이미지로부터 외부포트 80을 가지고 있는 sample_pytorch라는
+이름의 container 생성, gpus를 사용할 수 있도록 --gpu all 설정
+6. docker start sample_pytorch로 container 실행
+7. vscode로 원격 접속해서 사용. 
+8. 추가 설치 library ( 후에 Dockerfile에 넣은 후 한꺼번에 설치)
+    pip install selenium
+    kafka 설치방법 추가
+
+
+현재 상황
+- CUDA, selenium, webdriver 세팅 완료됨. google image 크롤링 코드
+완성해야함. 
+- 크롤링 코드 완성되면 kafka 설치하고, 설치 과정 Dockerfile에
+저장한 다음, Dockerfile 새롭게 빌드해서 새로운 컨테이너 만들 때
+잘 되는지 확인
+- 
