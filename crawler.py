@@ -47,13 +47,32 @@ class GoogleImageCrawler():
         finally:
             pass
         
+        # input the keyword to search box
         elem.send_keys(search_keyword)
         # Enter 입력
         elem.send_keys(Keys.RETURN) 
     
-        self.get_images(elem, search_keyword)
+        self.get_images(search_keyword)
     
-    def get_images(self, elem, keywords):
+    def get_images(self, keywords):
+        
+        # scroll the page to bottom
+        scroll_pause_time = 1
+        last_height = self.driver.execute_script("return document.body.scrollHeight")
+        while True:
+            self.driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+            time.sleep(scroll_pause_time)
+            new_height = self.driver.execute_script("return document.body.scrollHeight")
+            if new_height == last_height:
+                try:
+                    self.driver.find_element(By.CSS_SELECTOR, ".mye4qd").click()
+                except:
+                    break
+            last_height = new_height
+            
+        self.get_images_from_driver(keywords)
+
+    def get_images_from_driver(self, keywords):
         try:
             images = WebDriverWait(self.driver, 10).until(
                 EC.presence_of_all_elements_located((By.CSS_SELECTOR, ".rg_i.Q4LuWd"))
@@ -63,6 +82,7 @@ class GoogleImageCrawler():
         
         self.image_count = 0
         image_url = []
+        create_folder(self.output_dir)
         for image in images:
             try:
                 image.click()
@@ -73,36 +93,28 @@ class GoogleImageCrawler():
                     big_image = element[0].find_element(By.CLASS_NAME, 'n3VNCb')
                 else:
                     big_image = element[1].find_element(By.CLASS_NAME, 'n3VNCb')
-                image_url.append(big_image.get_attribute("src"))
+                try:
+                    # The case link exists but response does not exist.
+                    url = big_image.get_attribute("src")
+                    response = requests.get(url)
+                    image_url.append(url)
+                    if(self.print_url_option):
+                        print(f"{self.image_count+1}th image url {'':3}:{'':3} {image_url[self.image_count]}")
+                    time.sleep(1)
+                    # if response was success, write the image on the local
+        
+                    if response.status_code == 200:
+                        time.sleep(1)
+                        with open(f"{self.output_dir}/{keywords}{self.image_count+1}.jpg", "wb") as file:
+                            file.write(response.content)
+                    self.image_count += 1
+                except:
+                    pass
                 
-                if(self.print_url_option):
-                    print(f"{self.image_count+1}th image url {'':3}:{'':3} {image_url[self.image_count]}")
-                response = requests.get(image_url[self.image_count])
-                
-                # if response was success, write the image on the local
-                create_folder(self.output_dir)
-                if response.status_code == 200:
-                    with open(f"{self.output_dir}/{keywords}{self.image_count+1}.jpg", "wb") as file:
-                        file.write(response.content)
-                self.image_count += 1
                 
                 if(self.image_count > self.maximum_image_count):
-                    print(f"total {self.image_count} was gathered")
+                    print(f"total {self.image_count - 1} was gathered")
                     break
                 
             except:
                 pass
-        # //*[@id="islrg"]/div[1]/div[1]/a[1]/div[1]/img
-        
-# /html/body/div[2]/c-wiz/div[3]/div[1]/div/div/div/div/div[1]/div[1]/span/div[1]/div[1]/div[18]
-
-#*[@id="islrg"]/div[1]/div[36]/a[1]/div[1]/img
-#*[@id="islrg"]/div[1]/div[38]/a[1]/div[1]/img
-#*[@id="islrg"]/div[1]/div[40]/a[1]/div[1]/img
-#*[@id="islrg"]/div[1]/div[6]/a[1]/div[1]/img
-#*[@id="Sva75c"]/div[2]/div/div[2]/div[2]/div[2]/c-wiz/div[2]/div[1]/div[1]/div[2]/div/a/img
-#*[@id="Sva75c"]/div[2]/div/div[2]/div[2]/div[2]/c-wiz/div[2]/div[1]/div[1]/div[2]/div/a/img
-#*[@id="Sva75c"]/div[2]/div/div[2]/div[2]/div[2]/c-wiz/div[2]/div[1]/div[1]/div[2]/div/a/img
-#*[@id="Sva75c"]/div[2]/div/div[2]/div[2]/div[2]/c-wiz/div[2]/div[1]/div[1]/div[2]/div/a/img
-# *[@id="islrg"]/div[1]/div[153]/a[1]/div[1]/img
-# *[@id="Sva75c"]/div[2]/div/div[2]/div[2]/div[2]/c-wiz/div[2]/div[1]/div[1]/div[2]/div/a/img
