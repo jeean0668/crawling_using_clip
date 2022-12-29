@@ -26,7 +26,7 @@ class GoogleImageCrawler():
         self.output_dir = output_dir
         self.image_count = 0
         self.maximum_image_count = maximum_image_count
-        self.output_data_information = pd.DataFrame({'num': [], 'keywords' : [], 'url' : []})
+        self.output_data_information = pd.DataFrame({'num': [], 'keywords' : [], 'url' : [], 'similarity' : []})
         
     def set_options(self):
         
@@ -83,11 +83,10 @@ class GoogleImageCrawler():
             )
         finally:
             pass
-        
         self.image_count = 0
         image_url = []
-        create_folder(self.output_dir)
         criterion = Similarity()
+        create_folder(self.output_dir)
         
         for image in images:
             try:
@@ -104,8 +103,7 @@ class GoogleImageCrawler():
                     url = big_image.get_attribute("src")
                     response = requests.get(url)
                     image_url.append(url)
-                    if(self.print_url_option):
-                        print(f"{self.image_count+1}th image url {'':3}:{'':3} {image_url[self.image_count]}")
+                    
                     time.sleep(1)
                     # if response was success, write the image on the local
                     similarity = 0
@@ -115,31 +113,42 @@ class GoogleImageCrawler():
                             file.write(response.content)
                             # check cosine similarity, and save the information in excel files
                             file.close()
-                    
-                    image_file_directory = f"{self.output_dir}/{keywords}{self.image_count+1}.jpg"
-                    similarity = criterion.calculation(image_file_directory, keywords)
-                    print(f"similarity : {similarity}")
-                        
-                    
+                    try:
+                        image_file_directory = f"{self.output_dir}/{keywords}{self.image_count+1}.jpg"
+                        similarity = criterion.calculation(image_file_directory, keywords)
+                    except Exception as error:
+                        raise(error)
+                        # print the option
+                    finally:
+                        self.print_intermediate_process(image_url, similarity)
                     # save the information in dataframe
-                    # df = df.append(more) -> df = pd.condat([df, more]) 바뀜!! 
-                    new_row = {
-                        'num' : self.image_count + 1,
-                        'keywords' : keywords,
-                        'url' : image_url
-                    }
-                    self.output_data_information = pd.concat([self.output_data_information,
-                                                            pd.DataFrame.from_records([new_row])])
                     
-                    self.image_count += 1
+                    self.save_information(keywords, image_url, similarity)
                 except:
                     pass
                 
                 if(self.image_count > self.maximum_image_count):
                     print(f"total {self.image_count - 1} was gathered")
                     break
-                
             except:
                 pass
             
         self.output_data_information.to_excel("data/output/information.xlsx")
+
+    def print_intermediate_process(self, image_url, similarity):
+        if(self.print_url_option):
+            print(f"{self.image_count+1}th image url {'':3}:{'':3} {image_url[self.image_count]}")
+            print(f"similarity {'':3}:{'':3}{similarity.item()*100}%.")
+
+    def save_information(self, keywords, image_url, similarity):
+        # df = df.append(more) -> df = pd.condat([df, more]) 바뀜!! 
+        new_row = {
+                        'num' : self.image_count + 1,
+                        'keywords' : keywords,
+                        'url' : image_url,
+                        'similarity' : similarity.item()
+                    }
+        self.output_data_information = pd.concat([self.output_data_information,
+                                                            pd.DataFrame.from_records([new_row])])
+                    
+        self.image_count += 1
