@@ -5,11 +5,14 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from PIL import Image
+from utils import Similarity
 
 import requests
 import time
 import urllib.request
 import os
+import pandas as pd
 
 def create_folder(name):
     if not os.path.isdir(f"{name}/"):
@@ -23,6 +26,7 @@ class GoogleImageCrawler():
         self.output_dir = output_dir
         self.image_count = 0
         self.maximum_image_count = maximum_image_count
+        self.output_data_information = pd.DataFrame({'num': [], 'keywords' : [], 'url' : []})
         
     def set_options(self):
         
@@ -83,6 +87,8 @@ class GoogleImageCrawler():
         self.image_count = 0
         image_url = []
         create_folder(self.output_dir)
+        criterion = Similarity()
+        
         for image in images:
             try:
                 image.click()
@@ -102,15 +108,32 @@ class GoogleImageCrawler():
                         print(f"{self.image_count+1}th image url {'':3}:{'':3} {image_url[self.image_count]}")
                     time.sleep(1)
                     # if response was success, write the image on the local
-        
+                    similarity = 0
                     if response.status_code == 200:
                         time.sleep(1)
                         with open(f"{self.output_dir}/{keywords}{self.image_count+1}.jpg", "wb") as file:
                             file.write(response.content)
+                            # check cosine similarity, and save the information in excel files
+                            file.close()
+                    
+                    image_file_directory = f"{self.output_dir}/{keywords}{self.image_count+1}.jpg"
+                    similarity = criterion.calculation(image_file_directory, keywords)
+                    print(f"similarity : {similarity}")
+                        
+                    
+                    # save the information in dataframe
+                    # df = df.append(more) -> df = pd.condat([df, more]) 바뀜!! 
+                    new_row = {
+                        'num' : self.image_count + 1,
+                        'keywords' : keywords,
+                        'url' : image_url
+                    }
+                    self.output_data_information = pd.concat([self.output_data_information,
+                                                            pd.DataFrame.from_records([new_row])])
+                    
                     self.image_count += 1
                 except:
                     pass
-                
                 
                 if(self.image_count > self.maximum_image_count):
                     print(f"total {self.image_count - 1} was gathered")
@@ -118,3 +141,5 @@ class GoogleImageCrawler():
                 
             except:
                 pass
+            
+        self.output_data_information.to_excel("data/output/information.xlsx")

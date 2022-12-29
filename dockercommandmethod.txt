@@ -1,0 +1,14 @@
+docker 커밋하기
+1. docker commit "실행중인 container 이름" "commit message"
+    ex) docker commit sample_pytorch pytorch_and_selenium
+
+# dockerhub에 로그인
+2. docker login
+
+# tag 달기 (이때 tag가 docker hub id/... 형태여야 함)
+3. docker tag "docker image 이름" "jeean0668/docker image 이름"
+    ex) docker tag pytorch_and_selenium jeean0668/pytorch_and_selenium
+
+# push
+4. docker push jeean0668/dockerimage 이름
+    ex) docker push jeean0668/pytorch_and_selenium
