@@ -14,6 +14,9 @@ RUN apt-get update && \
 RUN apt-get update -y && \
     pip install selenium && \
     pip install webdriver-manager
+    pip install ftfy regex tqdm
+    pip install git+https://github.com/openai/CLIP.git
+    pip install openpyxl
 
 # setup worker directory and copy repository date to docker image
 RUN apt-get update && \

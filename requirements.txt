@@ -27,4 +27,5 @@ crawler_sample 이미지로부터 외부포트 80을 가지고 있는 sample_pyt
 - 크롤링 코드 완성되면 kafka 설치하고, 설치 과정 Dockerfile에
 저장한 다음, Dockerfile 새롭게 빌드해서 새로운 컨테이너 만들 때
 잘 되는지 확인
-- 
+- 크롤링 완료, CLIP cosine similarity 계산 완료.
+

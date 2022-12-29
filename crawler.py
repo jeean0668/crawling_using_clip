@@ -121,8 +121,8 @@ class GoogleImageCrawler():
                         # print the option
                     finally:
                         self.print_intermediate_process(image_url, similarity)
+                        
                     # save the information in dataframe
-                    
                     self.save_information(keywords, image_url, similarity)
                 except:
                     pass
