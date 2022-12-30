@@ -9,6 +9,9 @@ FROM crawler_sample
 
 RUN apt-get update && \
     apt-get install -y git
+    mkdir workspace
+
+WORKDIR "/workspace"
 
 # install selenium and chrome driver
 RUN apt-get update -y && \
@@ -29,3 +32,9 @@ RUN apt-get update && \
     DRIVERVER=$(curl -s "https://chromedriver.storage.googleapis.com/LATEST_RELEASE_$CHROMEVER") && \
     wget -q --continue -P /chromedriver "http://chromedriver.storage.googleapis.com/$DRIVERVER/chromedriver_linux64.zip" && \
     unzip /chromedriver/chromedriver* -d /chromedriver
+
+# merge kafka and zookeeper in one image
+FROM wurstmeister/kafka apt-get update
+
+FROM wurstmeister/zookeeper apt-get update
+
