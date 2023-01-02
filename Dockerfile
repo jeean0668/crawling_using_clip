@@ -20,6 +20,7 @@ RUN apt-get update -y && \
     pip install ftfy regex tqdm
     pip install git+https://github.com/openai/CLIP.git
     pip install openpyxl
+    pip install kafka-python
 
 # setup worker directory and copy repository date to docker image
 RUN apt-get update && \
