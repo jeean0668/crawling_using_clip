@@ -19,12 +19,30 @@ producer = KafkaProducer(bootstrap_servers=bootstrap_servers,
                          value_serializer=lambda x: dumps(x).encode('utf-8'))
 
 # 카프카 토픽
-str_topic_name = 'Topic1'
+str_topic_name1 = 'Topic1'
+str_topic_name2 = 'Topic2'
+str_topic_name3 = 'Topic3'
 
 # 카프카 공급자 토픽에 데이터를 보낸다
-data = {"time": time.time(), 
+data1 = {"time": time.time(), 
         'keywords' : 'dark cloud images',
         'image_nums' : 1000}
-producer.send(str_topic_name, value=data).add_callback(on_send_success)\
+
+data2 = {"time": time.time(), 
+        'keywords' : 'dark cloud drawing',
+        'image_nums' : 1000}
+
+data3 = {"time": time.time(), 
+        'keywords' : 'dark cloud games',
+        'image_nums' : 1000}
+
+producer.send(str_topic_name1, value=data1).add_callback(on_send_success)\
                                          .get(timeout=100) # blocking maximum timeout
-print('data:', data)
+
+producer.send(str_topic_name2, value=data2).add_callback(on_send_success)\
+                                         .get(timeout=100) 
+producer.send(str_topic_name3, value=data3).add_callback(on_send_success)\
+                                         .get(timeout=100) 
+print('data1:', data1)
+print('data2:', data2)
+print('data3:', data3)
