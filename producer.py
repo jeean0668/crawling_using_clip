@@ -20,8 +20,7 @@ producer = KafkaProducer(bootstrap_servers=bootstrap_servers,
 
 # 카프카 토픽
 str_topic_name1 = 'Topic1'
-str_topic_name2 = 'Topic2'
-str_topic_name3 = 'Topic3'
+
 
 # 카프카 공급자 토픽에 데이터를 보낸다
 data1 = {"time": time.time(), 
@@ -36,13 +35,8 @@ data3 = {"time": time.time(),
         'keywords' : 'dark cloud games',
         'image_nums' : 1000}
 
+producer.flush()
 producer.send(str_topic_name1, value=data1).add_callback(on_send_success)\
                                          .get(timeout=100) # blocking maximum timeout
-
-producer.send(str_topic_name2, value=data2).add_callback(on_send_success)\
-                                         .get(timeout=100) 
-producer.send(str_topic_name3, value=data3).add_callback(on_send_success)\
-                                         .get(timeout=100) 
+ 
 print('data1:', data1)
-print('data2:', data2)
-print('data3:', data3)
