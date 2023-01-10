@@ -11,6 +11,7 @@ bootstrap_servers = ["host.docker.internal:9092"]
 str_topic_name    = 'Topic1'
 
 # 카프카 소비자 group1 생성
+### 
 str_group_name = 'group1'
 consumer = KafkaConsumer(str_topic_name, bootstrap_servers=bootstrap_servers,
                          auto_offset_reset='earliest', # 가장 처음부터 소비
@@ -23,12 +24,17 @@ consumer = KafkaConsumer(str_topic_name, bootstrap_servers=bootstrap_servers,
 
 if __name__ == "__main__":
     
+    custom_crawler = crawler.GoogleImageCrawler()
+    index = 0 
     for message in consumer:
+        print(message.value)
         image_nums = message.value['image_nums']
         keywords = message.value['keywords']
-        print(message)
-        custom_crawler = crawler.GoogleImageCrawler(
-            maximum_image_count = message.value['image_nums'])
+        custom_crawler.maximum_image_count = message.value['image_nums']
         custom_crawler.search(message.value['keywords'])
+        print(f"{index+1}/{image_nums} processing finished")
+        index += 1
+        
+    print("finished")
     
     
