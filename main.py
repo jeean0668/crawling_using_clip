@@ -29,7 +29,7 @@ if __name__ == "__main__":
     for message in consumer:
         print(message.value)
         image_nums = message.value['image_nums']
-        keywords = message.value['keywords']
+        keywords = message.value['keywords'] + ' ' + message.value['category']
         custom_crawler.maximum_image_count = message.value['image_nums']
         custom_crawler.search(message.value['keywords'])
         print(f"{index+1}/{image_nums} processing finished")
